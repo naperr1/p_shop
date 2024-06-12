@@ -2,22 +2,23 @@ import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
-dotenv.config();
 import productRoutes from "./routes/productRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 
+dotenv.config();
+
 connectDB();
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
 
 app.use("/api/products", productRoutes);
@@ -31,10 +32,11 @@ app.get("/api/config/paypal", (req, res) =>
   })
 );
 
-app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+// Define __dirname in ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV === "production") {
-  const __dirname = path.resolve();
   app.use("/uploads", express.static("/var/data/uploads"));
   app.use(express.static(path.join(__dirname, "/frontend/build")));
 
@@ -42,7 +44,6 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"))
   );
 } else {
-  const __dirname = path.resolve();
   app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
   app.get("/", (req, res) => {
     res.send("API running...");
@@ -52,6 +53,6 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, (req, res) => {
-  console.log(`listening on ${port}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
