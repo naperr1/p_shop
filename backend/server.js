@@ -37,11 +37,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV === "production") {
-  app.use("/uploads", express.static("/var/data/uploads"));
-  app.use(express.static(path.join(__dirname, "/frontend/build")));
+  // Correct path to build folder
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
 
   app.get("*", (req, res) =>
-    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"))
+    res.sendFile(path.resolve(__dirname, "../frontend/build", "index.html"))
   );
 } else {
   app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
